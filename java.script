@@ -1,0 +1,73 @@
+const form = document.getElementById('studentForm');
+const inputs = form.querySelectorAll('input:not(#photoInput), select, textarea');
+const btnEdit = document.getElementById('btnEdit');
+const btnSave = document.getElementById('btnSave');
+const btnChangePhoto = document.getElementById('btnChangePhoto');
+const photoInput = document.getElementById('photoInput');
+const profileImage = document.getElementById('profileImage');
+
+// Load data dari LocalStorage jika ada
+window.addEventListener('DOMContentLoaded', () => {
+  const savedData = JSON.parse(localStorage.getItem('studentData'));
+  if (savedData) {
+    document.getElementById('nama').value = savedData.nama || '';
+    document.getElementById('nisn').value = savedData.nisn || '';
+    document.getElementById('kelas').value = savedData.kelas || '';
+    document.getElementById('gender').value = savedData.gender || 'Laki-laki';
+    document.getElementById('tgllahir').value = savedData.tgllahir || '';
+    document.getElementById('alamat').value = savedData.alamat || '';
+    if (savedData.photo) {
+      profileImage.src = savedData.photo;
+    }
+  }
+});
+
+// Aktifkan mode edit
+btnEdit.addEventListener('click', () => {
+  inputs.forEach(input => input.disabled = false);
+  btnEdit.style.display = 'none';
+  btnSave.style.display = 'inline-block';
+  btnChangePhoto.style.display = 'inline-block';
+});
+
+// Pemicu upload foto
+btnChangePhoto.addEventListener('click', () => {
+  photoInput.click();
+});
+
+// Preview foto yang diupload
+photoInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      profileImage.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Simpan data ke LocalStorage
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const studentData = {
+    nama: document.getElementById('nama').value,
+    nisn: document.getElementById('nisn').value,
+    kelas: document.getElementById('kelas').value,
+    gender: document.getElementById('gender').value,
+    tgllahir: document.getElementById('tgllahir').value,
+    alamat: document.getElementById('alamat').value,
+    photo: profileImage.src
+  };
+
+  localStorage.setItem('studentData', JSON.stringify(studentData));
+
+  // Nonaktifkan field kembali setelah simpan
+  inputs.forEach(input => input.disabled = true);
+  btnEdit.style.display = 'inline-block';
+  btnSave.style.display = 'none';
+  btnChangePhoto.style.display = 'none';
+
+  alert('Data berhasil disimpan!');
+});
